@@ -641,6 +641,7 @@ class YOLOV8DetectorQuantized(Task):
         for layer in self.layers:
             try:
                 layers_flat.extend(layer.layers)
+                print(layer.inbound_nodes)
             except AttributeError:
                 layers_flat.append(layer)
         # model_flat = keras.models.Sequential(layers_flat)
@@ -652,15 +653,18 @@ class YOLOV8DetectorQuantized(Task):
         print("--------------------------------------------------------------")
         config.update(
             {
-                "input_layers": self.input.name,
-                "output_layers": ["boxes", "labels"],
-                "layers": keras.utils.serialize_keras_object(layers_flat),
+                "config": {
+                    "layers": keras.utils.serialize_keras_object(layers_flat),
+                    "input_layers": self.input.name,
+                    "output_layers": ["boxes", "labels"],
+                },
                 "num_classes": self.num_classes,
                 "bounding_box_format": self.bounding_box_format,
                 "fpn_depth": self.fpn_depth,
                 "backbone": keras.utils.serialize_keras_object(self.backbone),
                 "label_encoder": self.label_encoder,
                 "prediction_decoder": self._prediction_decoder,
+                "class_name": "Model"
             }
         )
         # config["config"]

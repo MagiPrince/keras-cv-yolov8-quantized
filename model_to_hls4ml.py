@@ -26,6 +26,8 @@ model = keras_cv.models.YOLOV8DetectorQuantized(
     fpn_depth=2
 )
 
+model.build((None, 64, 64, 3))
+
 model.summary()
 
 
@@ -44,7 +46,7 @@ print("END")
 # This will download our example model to your working directory and return an example configuration file
 # print(model.get_config())
 # print(model.get_layer("model"))
-config = hls4ml.utils.config_from_keras_model(model)
+config = hls4ml.utils.config_from_keras_model(model.get_config())
 
 
 print("-----------------------------------")
