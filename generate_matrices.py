@@ -8,7 +8,7 @@ import matplotlib.pyplot as plt
 GRANULARITY = 0.1
 SIZE_FINAL_MATRIX = 64
 
-path_calocell = "simulated_data/calocells/"
+path_calocell = "../CNNandMLP/data/calocell/"
 
 def normalization_method(val, method, min=0, max=0, mean=0, std=0):
     if method == 0:
@@ -50,7 +50,12 @@ matrices_test = []
 dir_files = os.listdir(path_calocell)
 dir_files = sorted(dir_files)
 
+# Compute the len of phi and eta based on a given granularity
+len_phi = len(np.arange(start=-3.15, stop=3.15+GRANULARITY, step=GRANULARITY))
+len_eta = len(np.arange(start=-2.4, stop=2.4+GRANULARITY, step=GRANULARITY))
+
 for folder_element, calocell_file in enumerate(dir_files):
+    print("--------------------- File : " + str(calocell_file) + " ---------------------")
 
     f = h5py.File(os.path.join(path_calocell, calocell_file), "r")
 
@@ -61,7 +66,7 @@ for folder_element, calocell_file in enumerate(dir_files):
     f.close()
 
     for i in range(0,len(data_calo)):
-        print("--------------------- data_calo " + str(i) + " ---------------------")
+        # print("--------------------- data_calo " + str(i) + " ---------------------")
         df_calo = pd.DataFrame(data_calo[i],  columns=['cell_E', 'cell_Sigma', 'cell_eta', 'cell_phi', 'cell_pt'])
 
         # Check if the cell_E is above 2 sigma (that defined that the energy is interesting)
@@ -74,11 +79,8 @@ for folder_element, calocell_file in enumerate(dir_files):
 
         df_calo['cell_phi_rounded'] = df_calo['cell_phi'].apply(lambda x : round(x*40)/40)
         
-        len_phi = len(np.arange(start=-3.15, stop=3.15+GRANULARITY, step=GRANULARITY))
-        len_eta = len(np.arange(start=-2.4, stop=2.4+GRANULARITY, step=GRANULARITY))
-        matrix = np.zeros((3, SIZE_FINAL_MATRIX, SIZE_FINAL_MATRIX))
 
-        df_max = df_calo['cell_EoverSigma'].max()
+        matrix = np.zeros((3, SIZE_FINAL_MATRIX, SIZE_FINAL_MATRIX))
 
         for j in range(len(df_calo['cell_eta'])):
             if np.absolute(df_calo['cell_eta'].iloc[j]) <= 2.4:

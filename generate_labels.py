@@ -3,7 +3,7 @@ import pandas as pd
 import numpy as np
 import os
 
-path_jet = "simulated_data/jets/"
+path_jet = "../CNNandMLP/data/jet/"
 
 ETA = 2.4
 PHI = 3.15
@@ -38,6 +38,7 @@ dir_files_jet = os.listdir(path_jet)
 dir_files_jet = sorted(dir_files_jet)
 
 for folder_element, jet_file in enumerate(dir_files_jet):
+    print("--------------------- File : " + str(jet_file) + " ---------------------")
 
     f = h5py.File(os.path.join(path_jet, jet_file), "r")
 
@@ -62,7 +63,7 @@ for folder_element, jet_file in enumerate(dir_files_jet):
     ########################################################################
 
     for i in range(len(data_jet)):
-        print("--------------------- data_jet " + str(i) + " ---------------------")
+        # print("--------------------- data_jet " + str(i) + " ---------------------")
         df_jet = pd.DataFrame(data_jet[i],  columns=list(dict_data_jet.keys()))
 
         df_jet['eta_rounded'] = df_jet['AntiKt4EMTopoJets_eta'].apply(lambda x : round(x*10)/10 if x == x else x)
@@ -90,6 +91,8 @@ for folder_element, jet_file in enumerate(dir_files_jet):
 
             tmp_labels.append(label)
             tmp_classes.append(class_)
+
+        # tmp_labels = sorted(tmp_labels, key=lambda x: x[0], reverse=False)
 
         if len(df_jet['eta_rounded']) < 30:
             for j in range(30-len(df_jet['eta_rounded'])):
