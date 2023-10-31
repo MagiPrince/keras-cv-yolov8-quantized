@@ -6,8 +6,8 @@ import os
 import sys
 import copy
 
-NAME_BACKBONE = "yolo_v8_m_backbone"
-NAME_WEIGHT = "loss_min"
+NAME_BACKBONE = "yolo_v8_xs_backbone"
+NAME_WEIGHT = "yolo_v8_xs_backbone"
 CONFIDENCE = 0.5
 IOU_THRESHOLD = 0.5
 
@@ -43,18 +43,18 @@ def intersection_over_union(boxA, boxB):
     # Return the IoU and intersection box
     return IoU
 
-def evaluate_model_f(images_test, labels_test, name_weight):
+def evaluate_model_f(images_test, labels_test, name_weight, name_backbone):
 
     model = keras_cv.models.YOLOV8Detector(
         num_classes=2,
         bounding_box_format="center_xywh",
         backbone=keras_cv.models.YOLOV8Backbone.from_preset(
-            NAME_BACKBONE
+            name_backbone
         ),
         fpn_depth=2
     )
 
-    if not os.path.isfile(NAME_BACKBONE+".h5"):
+    if not os.path.isfile(name_backbone+".h5"):
         sys.exit(1)
 
     model.load_weights(name_weight+".h5", skip_mismatch=False, by_name=False, options=None)
@@ -66,6 +66,7 @@ def evaluate_model_f(images_test, labels_test, name_weight):
     true_positif = 0
     false_positif = 0
     false_negative = 0
+    true_negative = 0
 
     ap_array_labels = []
     ap_array_scores = []
@@ -75,11 +76,11 @@ def evaluate_model_f(images_test, labels_test, name_weight):
         true_detection = 0
         boxes_gt = []
         for j in range(len(labels_test["boxes"][i])):
-            if labels_test["classes"][i][j] == 1 and labels_test["boxes"][i][j][0] < 45 and labels_test["boxes"][i][j][0] > 5 and labels_test["boxes"][i][j][1] < 59 and labels_test["boxes"][i][j][1] > 5:
+            if labels_test["classes"][i][j] == 1 and labels_test["boxes"][i][j][0] < 48 and labels_test["boxes"][i][j][0] > 5 and labels_test["boxes"][i][j][1] < 59 and labels_test["boxes"][i][j][1] > 5:
                 boxes_gt.append(copy.deepcopy(labels_test["boxes"][i][j].tolist()))
 
         for j in range(len(results["boxes"][i])):
-            if results["classes"][i][j] == 1 and results["confidence"][i][j] >= CONFIDENCE and results["boxes"][i][j][0] < 45 and results["boxes"][i][j][0] > 5 and results["boxes"][i][j][1] > 5 and results["boxes"][i][j][1] < 59:
+            if results["classes"][i][j] == 1 and results["confidence"][i][j] >= CONFIDENCE and results["boxes"][i][j][0] < 48 and results["boxes"][i][j][0] > 5 and results["boxes"][i][j][1] > 5 and results["boxes"][i][j][1] < 59:
                 detection_over_confidence += 1
                 index_iou = -1
                 best_iou = -1
@@ -97,6 +98,8 @@ def evaluate_model_f(images_test, labels_test, name_weight):
                     true_detection += 1
                     
                     # print(best_iou)
+            else:
+                true_negative += 1
 
         true_positif += true_detection
         false_positif += detection_over_confidence-true_detection
@@ -118,11 +121,11 @@ def main():
     print("Nb images : " + str(len(images_test)))
 
     labels_test = {
-        "boxes": np.load("labels_test_4_n_neurons.npy"),
-        "classes": np.load("classes_test_4_n_neurons.npy")
+        "boxes": np.load("labels_test.npy"),
+        "classes": np.load("classes_test.npy")
     }
 
-    evaluate_model_f(images_test, labels_test, NAME_WEIGHT)
+    evaluate_model_f(images_test, labels_test, NAME_WEIGHT, NAME_BACKBONE)
 
 if __name__ == "__main__":
     main()

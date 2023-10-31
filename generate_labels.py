@@ -75,7 +75,7 @@ for folder_element, jet_file in enumerate(dir_files_jet):
         # print(len(df_jet['eta_rounded']))
 
         for j in range(len(df_jet['eta_rounded'])):
-            label = [55, 32, 10, 10]
+            label = [59, 32, 10, 10]
             class_ = 0
             # Check if the value is not a NaN
             if df_jet['eta_rounded'].iloc[j] == df_jet['eta_rounded'].iloc[j]:

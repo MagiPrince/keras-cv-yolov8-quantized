@@ -5,28 +5,28 @@ import numpy as np
 import os
 from keras.callbacks import EarlyStopping, ModelCheckpoint, ReduceLROnPlateau
 
-NAME_BACKBONE = "yolo_v8_m_backbone"
+NAME_BACKBONE = "yolo_v8_xs_backbone"
 TRAIN = True
 
 images = np.load("matrices_training.npy")
 
 labels = {
-    "boxes": np.load("labels_training_4_n_neurons.npy"),
-    "classes": np.load("classes_training_4_n_neurons.npy")
+    "boxes": np.load("labels_training.npy"),
+    "classes": np.load("classes_training.npy")
 }
 
 images_validation = np.load("matrices_validation.npy")
 
 labels_validation = {
-    "boxes": np.load("labels_validation_4_n_neurons.npy"),
-    "classes": np.load("classes_validation_4_n_neurons.npy")
+    "boxes": np.load("labels_validation.npy"),
+    "classes": np.load("classes_validation.npy")
 }
 
 images_test = np.load("matrices_test.npy")
 
 labels_test = {
-    "boxes": np.load("labels_test_4_n_neurons.npy"),
-    "classes": np.load("classes_test_4_n_neurons.npy")
+    "boxes": np.load("labels_test.npy"),
+    "classes": np.load("classes_test.npy")
 }
 
 model = keras_cv.models.YOLOV8Detector(
@@ -52,7 +52,7 @@ else:
     model.compile(
         classification_loss='binary_crossentropy',
         box_loss='iou',
-        optimizer=tf.optimizers.SGD(global_clipnorm=10.0),
+        optimizer=tf.optimizers.Adam(),
         jit_compile=False,
     )
 
