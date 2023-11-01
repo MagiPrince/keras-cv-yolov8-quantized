@@ -26,7 +26,29 @@ for element in data:
 
 print(np.trapz(precision_array, recall_array))
 
+p = []
+r = []
+
+prec_at_rec = []
+for recall_level in np.linspace(0.0, 1.0, 11):
+    try:
+        args = np.argwhere(recall_array >= recall_level).flatten()
+        r.append(recall_level)
+        prec = precision_array[min(args)]
+        p.append(prec)
+    except ValueError:
+        prec = 0.0
+        p.append(prec)
+    prec_at_rec.append(prec)
+avg_prec = np.mean(prec_at_rec)
+
+print(r)
+print(p)
+
+print(avg_prec)
+
 plt.plot(recall_array, precision_array)
+plt.plot(r, p, "--")
 plt.xlabel("Recall")
 plt.ylabel("Precision")
 plt.title("Precision x Recall curve")
