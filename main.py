@@ -63,7 +63,7 @@ else:
     # mcp_save_accuracy_max = ModelCheckpoint('accuracy_max.h5', save_best_only=True, save_weights_only=True, monitor='accuracy', mode='max')
     reduce_lr_loss = ReduceLROnPlateau(monitor='loss', factor=0.5, patience=500, verbose=1, mode='min')
 
-    model.fit(images, labels, validation_data=(images_validation, labels_validation), epochs=100, batch_size=64, callbacks=[mcp_save_val_loss_min, mcp_save_loss_min])
+    model.fit(images, labels, validation_data=(images_validation, labels_validation), epochs=30, batch_size=64, callbacks=[mcp_save_val_loss_min, mcp_save_loss_min])
 
     model.save_weights(NAME_BACKBONE+".h5", overwrite="True", save_format="h5", options=None)
 
