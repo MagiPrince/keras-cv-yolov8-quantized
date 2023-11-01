@@ -67,8 +67,8 @@ def evaluate_model_f(images_test, labels_test, name_weight, name_backbone):
     false_positif = 0
     false_negative = 0
 
-    ap_array_labels = []
-    ap_array_scores = []
+    prediction_array = []
+    nb_gt = 0
 
     for i in range(len(results["boxes"].to_tensor())):
         detection_over_confidence = 0
@@ -77,6 +77,9 @@ def evaluate_model_f(images_test, labels_test, name_weight, name_backbone):
         for j in range(len(labels_test["boxes"][i])):
             if labels_test["classes"][i][j] == 1 and labels_test["boxes"][i][j][0] < 48 and labels_test["boxes"][i][j][0] > 5 and labels_test["boxes"][i][j][1] < 59 and labels_test["boxes"][i][j][1] > 5:
                 boxes_gt.append(copy.deepcopy(labels_test["boxes"][i][j].tolist()))
+
+        nb_gt += len(boxes_gt)
+        boxes_gt_for_pxrc = copy.deepcopy(boxes_gt)
 
         for j in range(len(results["boxes"][i])):
             if results["classes"][i][j] == 1 and results["confidence"][i][j] >= CONFIDENCE and results["boxes"][i][j][0] < 48 and results["boxes"][i][j][0] > 5 and results["boxes"][i][j][1] > 5 and results["boxes"][i][j][1] < 59:
@@ -96,65 +99,14 @@ def evaluate_model_f(images_test, labels_test, name_weight, name_backbone):
                     boxes_gt.pop(index_iou)
                     true_detection += 1
                     
-                    # print(best_iou)
-
-        true_positif += true_detection
-        false_positif += detection_over_confidence-true_detection
-        false_negative += len(boxes_gt)
-
-    print("True positif : " + str(true_positif))
-    print("False positif : " + str(false_positif))
-    print("False negative : " + str(false_negative))
-
-    print("F1 score : " + str((2*true_positif)/(2*true_positif+false_positif+false_negative)))
-
-    return true_positif, false_positif, false_negative, ((2*true_positif)/(2*true_positif+false_positif+false_negative))
-
-
-
-def evaluate_model_f_over_multiple_thresholds(images_test, labels_test, name_weight, name_backbone):
-
-    model = keras_cv.models.YOLOV8Detector(
-        num_classes=2,
-        bounding_box_format="center_xywh",
-        backbone=keras_cv.models.YOLOV8Backbone.from_preset(
-            name_backbone
-        ),
-        fpn_depth=2
-    )
-
-    if not os.path.isfile(name_backbone+".h5"):
-        sys.exit(1)
-
-    model.load_weights(name_weight+".h5", skip_mismatch=False, by_name=False, options=None)
-
-    # Get predictions using the model
-    results = model.predict(images_test)
-
-    # Confusion Matrix
-    true_positif = 0
-    false_positif = 0
-    false_negative = 0
-
-    ap_array_labels = []
-    ap_array_scores = []
-
-    for i in range(len(results["boxes"].to_tensor())):
-        detection_over_confidence = 0
-        true_detection = 0
-        boxes_gt = []
-        for j in range(len(labels_test["boxes"][i])):
-            if labels_test["classes"][i][j] == 1 and labels_test["boxes"][i][j][0] < 48 and labels_test["boxes"][i][j][0] > 5 and labels_test["boxes"][i][j][1] < 59 and labels_test["boxes"][i][j][1] > 5:
-                boxes_gt.append(copy.deepcopy(labels_test["boxes"][i][j].tolist()))
-
-        for j in range(len(results["boxes"][i])):
-            if results["classes"][i][j] == 1 and results["confidence"][i][j] >= CONFIDENCE and results["boxes"][i][j][0] < 48 and results["boxes"][i][j][0] > 5 and results["boxes"][i][j][1] > 5 and results["boxes"][i][j][1] < 59:
-                detection_over_confidence += 1
+                    
+            # Computing data to generate precision x recall curve
+            if results["classes"][i][j] == 1 and results["boxes"][i][j][0] < 48 and results["boxes"][i][j][0] > 5 and results["boxes"][i][j][1] > 5 and results["boxes"][i][j][1] < 59:
                 index_iou = -1
                 best_iou = -1
-                # boxes.append(results["boxes"][i][j])
-                for k in range(len(boxes_gt)):
-                    gt_box = [boxes_gt[k][0]-int(round(boxes_gt[k][2]/2)), boxes_gt[k][1]-int(round(boxes_gt[k][3]/2)), boxes_gt[k][2], boxes_gt[k][3]]
+
+                for k in range(len(boxes_gt_for_pxrc)):
+                    gt_box = [boxes_gt_for_pxrc[k][0]-int(round(boxes_gt_for_pxrc[k][2]/2)), boxes_gt_for_pxrc[k][1]-int(round(boxes_gt_for_pxrc[k][3]/2)), boxes_gt_for_pxrc[k][2], boxes_gt_for_pxrc[k][3]]
                     pred_box = [tf.get_static_value(results["boxes"][i][j][0]-(results["boxes"][i][j][2]/2)), tf.get_static_value(results["boxes"][i][j][1]-(results["boxes"][i][j][3]/2)), tf.get_static_value(results["boxes"][i][j][2]), tf.get_static_value(results["boxes"][i][j][3])]
                     iou = intersection_over_union(gt_box, pred_box)
                     if iou > best_iou:
@@ -162,14 +114,18 @@ def evaluate_model_f_over_multiple_thresholds(images_test, labels_test, name_wei
                         index_iou = k
 
                 if best_iou >= IOU_THRESHOLD:
-                    boxes_gt.pop(index_iou)
-                    true_detection += 1
-                    
-                    # print(best_iou)
+                    boxes_gt_for_pxrc.pop(index_iou)
+                    prediction_array.append((tf.get_static_value(results["confidence"][i][j]), True))
+                else:
+                    prediction_array.append((tf.get_static_value(results["confidence"][i][j]), False))
+
+
 
         true_positif += true_detection
         false_positif += detection_over_confidence-true_detection
         false_negative += len(boxes_gt)
+
+    prediction_array = sorted(prediction_array, key=lambda x: x[0], reverse=True)
 
     print("True positif : " + str(true_positif))
     print("False positif : " + str(false_positif))
@@ -177,7 +133,7 @@ def evaluate_model_f_over_multiple_thresholds(images_test, labels_test, name_wei
 
     print("F1 score : " + str((2*true_positif)/(2*true_positif+false_positif+false_negative)))
 
-    return true_positif, false_positif, false_negative, ((2*true_positif)/(2*true_positif+false_positif+false_negative))
+    return true_positif, false_positif, false_negative, ((2*true_positif)/(2*true_positif+false_positif+false_negative)), prediction_array, nb_gt
 
 
 
@@ -191,7 +147,12 @@ def main():
         "classes": np.load("classes_test.npy")
     }
 
-    evaluate_model_f(images_test, labels_test, NAME_WEIGHT, NAME_BACKBONE)
+    true_positif, false_positif, false_negative, f1_score, prediction_array, nb_gt = evaluate_model_f(images_test, labels_test, NAME_WEIGHT, NAME_BACKBONE)
+    print(prediction_array)
+    print(len(prediction_array))
+    print(len([i for i in prediction_array if i[0] >= 0.5]))
+    print(nb_gt)
+    print(true_positif+false_positif)
 
 if __name__ == "__main__":
     main()

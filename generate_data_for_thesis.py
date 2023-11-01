@@ -73,8 +73,10 @@ for iteration in range(0, 5):
 
         for j, name_weights in enumerate(array_name_weights):
 
-            true_positif, false_positif, false_negative, f1_score = evaluate_model_f(images_test, labels_test, name_weights, NAME_BACKBONE)
-            dict_results[str(iteration)][str(array_epochs[i])][name_weights] = [true_positif, false_positif, false_negative, f1_score]
+            true_positif, false_positif, false_negative, f1_score, prediction_array, nb_gt = evaluate_model_f(images_test, labels_test, name_weights, NAME_BACKBONE)
+            dict_results[str(iteration)][str(array_epochs[i])]["values_computed"] = [true_positif, false_positif, false_negative, f1_score, nb_gt]
+            dict_results[str(iteration)][str(array_epochs[i])]["prediction"] = prediction_array
+
 
         loss_history += model.history.history['loss']
         val_loss_history += model.history.history['val_loss']
