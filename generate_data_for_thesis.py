@@ -37,7 +37,7 @@ array_name_weights = ["yolo_v8_xs_backbone"]
 dict_results = {}
 
 # Loop of the number of models we are going to train to get training and results data
-for iteration in range(0, 5):
+for iteration in range(0, 3):
     print("--------------------- Experience " + str(iteration) + " ---------------------")
     # Creating model for this experience
     tf.keras.utils.set_random_seed((iteration+1)*17*100)
@@ -73,9 +73,9 @@ for iteration in range(0, 5):
 
         for j, name_weights in enumerate(array_name_weights):
 
-            true_positif, false_positif, false_negative, f1_score, prediction_array, nb_gt = evaluate_model_f(images_test, labels_test, name_weights, NAME_BACKBONE)
+            true_positif, false_positif, false_negative, f1_score, prediction_dict, nb_gt = evaluate_model_f(images_test, labels_test, name_weights, NAME_BACKBONE)
             dict_results[str(iteration)][str(array_epochs[i])]["values_computed"] = [true_positif, false_positif, false_negative, f1_score, nb_gt]
-            dict_results[str(iteration)][str(array_epochs[i])]["prediction"] = prediction_array
+            dict_results[str(iteration)][str(array_epochs[i])]["prediction"] = prediction_dict
 
 
         loss_history += model.history.history['loss']
@@ -85,7 +85,7 @@ for iteration in range(0, 5):
     dict_results[str(iteration)]['loss'] = loss_history
     dict_results[str(iteration)]['val_loss'] = val_loss_history
 
-np.save('YOLOv8_data_generated_backbone_xs_0_5.npy', dict_results)
+np.save('YOLOv8_data_generated_backbone_xs_0_3_05_095.npy', dict_results)
 
 # acc = model.history.history['val_accuracy']
 # print(acc) # [0.9573, 0.9696, 0.9754, 0.9762, 0.9784]
