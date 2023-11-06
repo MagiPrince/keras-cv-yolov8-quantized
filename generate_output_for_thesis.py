@@ -2,9 +2,42 @@ import numpy as np
 import matplotlib.pyplot as plt
 import pandas as pd
 
+def compute_average_precision_50_95(data_generated, iteration, epoch, compute_only_50=False):
+    prediction = data_generated[iteration][epoch]["prediction"]
 
-data_generated = np.load("YOLOv8_data_generated_0_5.npy", allow_pickle=True).item()
-data_generated.update(np.load("YOLOv8_data_generated_5_10.npy", allow_pickle=True).item())
+    ap = []
+
+    for key in prediction:
+
+        nb_gt = data_generated[iteration][epoch]["values_computed"][-1]
+        acc_TP = 0
+        acc_FP = 0
+        cnt_detection_reviewed = 0
+        precision_array = []
+        recall_array = []
+
+        for element in prediction[key]:
+            cnt_detection_reviewed += 1
+            if element[-1] == True:
+                acc_TP += 1
+            else:
+                acc_FP += 1
+
+            precision = acc_TP/cnt_detection_reviewed
+            recall = acc_TP/nb_gt
+
+            precision_array.append(precision)
+            recall_array.append(recall)
+
+        ap.append(np.trapz(precision_array, recall_array))
+        if compute_only_50:
+            break
+
+    return np.mean(ap)
+
+
+data_generated = np.load("YOLOv8_data_generated_backbone_xs_0_5_05_095.npy", allow_pickle=True).item()
+data_generated.update(np.load("YOLOv8_data_generated_backbone_xs_5_10_05_095.npy", allow_pickle=True).item())
 
 array_epochs = [2, 5, 10, 20, 30, 50, 100, 300, 500]
 
@@ -16,17 +49,24 @@ true_positifs_array = []
 false_positifs_array = []
 false_negatives_array = []
 
+ap_50_array = []
+ap_50_95_array = []
+
 for iteration in data_generated:
     f1_scores_of_epochs = []
     true_positifs_of_epochs = []
     false_positifs_of_epochs = []
     false_negatives_of_epochs = []
+    ap_50_of_epochs = []
+    ap_50_95_of_epochs = []
     for epoch in data_generated[iteration]:
         if epoch not in ['loss', 'val_loss']:
-            f1_scores_of_epochs.append(data_generated[iteration][epoch]['yolo_v8_xs_backbone'][-1])
-            true_positifs_of_epochs.append(data_generated[iteration][epoch]['yolo_v8_xs_backbone'][0])
-            false_positifs_of_epochs.append(data_generated[iteration][epoch]['yolo_v8_xs_backbone'][1])
-            false_negatives_of_epochs.append(data_generated[iteration][epoch]['yolo_v8_xs_backbone'][2])
+            f1_scores_of_epochs.append(data_generated[iteration][epoch]['values_computed'][3])
+            true_positifs_of_epochs.append(data_generated[iteration][epoch]['values_computed'][0])
+            false_positifs_of_epochs.append(data_generated[iteration][epoch]['values_computed'][1])
+            false_negatives_of_epochs.append(data_generated[iteration][epoch]['values_computed'][2])
+            ap_50_of_epochs.append(compute_average_precision_50_95(data_generated, iteration, epoch, True))
+            ap_50_95_of_epochs.append(compute_average_precision_50_95(data_generated, iteration, epoch))
         else:
             lossess_array.append(data_generated[iteration]['loss'])
             val_lossess_array.append(data_generated[iteration]['val_loss'])
@@ -35,6 +75,8 @@ for iteration in data_generated:
     true_positifs_array.append(true_positifs_of_epochs)
     false_positifs_array.append(false_positifs_of_epochs)
     false_negatives_array.append(false_negatives_of_epochs)
+    ap_50_array.append(ap_50_of_epochs)
+    ap_50_95_array.append(ap_50_95_of_epochs)
 
 # print("F1 score max : " + str(np.array(f1_scores_array).max(axis=0)) + "\n / min : " + str(np.array(f1_scores_array).min(axis=0))
 #       + "\n / mean : " + str(np.array(f1_scores_array).mean(axis=0)) + "\n / std : " + str(np.array(f1_scores_array).std(axis=0)))
@@ -59,8 +101,18 @@ stats_dict = {
     "Recall min": np.array(recall_computed).min(axis=0),
     "Recall mean": np.array(recall_computed).mean(axis=0),
     "Recall std": np.array(recall_computed).std(axis=0),
+    "AP[.5] max": np.array(ap_50_array).max(axis=0),
+    "AP[.5] min": np.array(ap_50_array).min(axis=0),
+    "AP[.5] mean": np.array(ap_50_array).mean(axis=0),
+    "AP[.5] std": np.array(ap_50_array).std(axis=0),
+    "AP[.5,0.05,0.95] max": np.array(ap_50_95_array).max(axis=0),
+    "AP[.5,0.05,0.95] min": np.array(ap_50_95_array).min(axis=0),
+    "AP[.5,0.05,0.95] mean": np.array(ap_50_95_array).mean(axis=0),
+    "AP[.5,0.05,0.95] std": np.array(ap_50_95_array).std(axis=0),
     }
 
+pd.set_option('display.max_columns', None)
+pd.set_option('display.max_rows', None)
 df = pd.DataFrame(data=stats_dict)
 print(df)
 
