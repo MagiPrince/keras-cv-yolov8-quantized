@@ -69,7 +69,7 @@ def plot_average_precision_x_recall_curve_of_all_models_for_a_given_epoch_and_th
     plt.legend(models_array)
     plt.xlabel("Recall")
     plt.ylabel("Precision")
-    plt.title("Average Precision x Recall curve")
+    plt.title("Average Precision x Recall curve of all model sizes for epoch : " + str(epoch))
     plt.show()
 
 
