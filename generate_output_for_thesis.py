@@ -84,7 +84,7 @@ for iteration in data_generated:
 precision_computed = [[true_positifs_array[i][j]/(true_positifs_array[i][j] + false_positifs_array[i][j]) for j in range(len(true_positifs_array[i]))]
                       for i in range(len(true_positifs_array))]
 
-recall_computed = [[true_positifs_array[i][j]/(true_positifs_array[i][j] + false_positifs_array[i][j]) for j in range(len(false_negatives_array[i]))]
+recall_computed = [[true_positifs_array[i][j]/(true_positifs_array[i][j] + false_negatives_array[i][j]) for j in range(len(false_negatives_array[i]))]
                       for i in range(len(true_positifs_array))]
 
 stats_dict = {

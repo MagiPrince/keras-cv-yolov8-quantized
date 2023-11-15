@@ -6,7 +6,7 @@ import os
 from keras.callbacks import EarlyStopping, ModelCheckpoint, ReduceLROnPlateau
 from evaluate_model import evaluate_model_f
 
-NAME_BACKBONE = "yolo_v8_l_backbone"
+NAME_BACKBONE = "yolo_v8_xs_backbone"
 TRAIN = True
 
 images = np.load("matrices_training.npy")
@@ -32,7 +32,7 @@ labels_test = {
 
 array_epochs = [2, 5, 10, 20, 30, 50, 100, 300, 500]
 array_epochs_b4_evaluation = [2, 3, 5, 10, 10, 20, 50, 200, 200]
-array_name_weights = ["yolo_v8_l_backbone"]
+array_name_weights = ["yolo_v8_xs_backbone"]
 
 dict_results = {}
 
@@ -85,7 +85,7 @@ for iteration in range(0, 5):
     dict_results[str(iteration)]['loss'] = loss_history
     dict_results[str(iteration)]['val_loss'] = val_loss_history
 
-np.save('YOLOv8_data_generated_backbone_l_0_5_05_095.npy', dict_results)
+np.save('YOLOv8_data_generated_backbone_xs_reduced_16x_0_5_05_095.npy', dict_results)
 
 # acc = model.history.history['val_accuracy']
 # print(acc) # [0.9573, 0.9696, 0.9754, 0.9762, 0.9784]
