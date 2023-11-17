@@ -26,7 +26,7 @@ backbone_presets_no_weights = {
         "config": {
             "include_rescaling": True,
             "input_shape": (None, None, 3),
-            "stackwise_channels": [2, 4, 8, 16],
+            "stackwise_channels": [1, 2, 4, 8],
             "stackwise_depth": [1, 2, 2, 1],
             "activation": "swish",
         },

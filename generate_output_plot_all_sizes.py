@@ -2,14 +2,13 @@ import numpy as np
 import matplotlib.pyplot as plt
 import pandas as pd
 
-def plot_average_precision_x_recall_curve_of_all_models_for_a_given_epoch_and_threshold(data, epoch, threshold, colors_model):
+def plot_average_precision_x_recall_curve_of_all_models_for_a_given_epoch_and_threshold(data, epoch, threshold, colors_model, step = 0.025):
     models_array = []
 
     for i, model in enumerate(data.keys()):
         models_array.append(model)
         precision_array_all_iter = []
         recall_array_all_iter = []
-        step = 0.025
         recall_thresholds = np.arange(start=0, stop=1+step, step=step)
 
         precision_a = []
@@ -69,7 +68,7 @@ def plot_average_precision_x_recall_curve_of_all_models_for_a_given_epoch_and_th
     plt.legend(models_array)
     plt.xlabel("Recall")
     plt.ylabel("Precision")
-    plt.title("Average Precision x Recall curve of all model sizes for epoch : " + str(epoch))
+    plt.title("Average Precision x Recall curve of all model sizes with IOU of : " + str(threshold) + " for epoch : " + str(epoch))
     plt.show()
 
 
@@ -176,25 +175,42 @@ def compute_average_precision_50_95(data_generated, iteration, epoch, compute_on
 model_xs = np.load("YOLOv8_data_generated_backbone_xs_0_5_05_095.npy", allow_pickle=True).item()
 model_xs.update(np.load("YOLOv8_data_generated_backbone_xs_5_10_05_095.npy", allow_pickle=True).item())
 
-model_s = np.load("YOLOv8_data_generated_backbone_s_0_5_05_095.npy", allow_pickle=True).item()
+# model_s = np.load("YOLOv8_data_generated_backbone_s_0_5_05_095.npy", allow_pickle=True).item()
 
-model_m = np.load("YOLOv8_data_generated_backbone_m_0_5_05_095.npy", allow_pickle=True).item()
+# model_m = np.load("YOLOv8_data_generated_backbone_m_0_5_05_095.npy", allow_pickle=True).item()
 
-model_l = np.load("YOLOv8_data_generated_backbone_l_0_5_05_095.npy", allow_pickle=True).item()
+# model_l = np.load("YOLOv8_data_generated_backbone_l_regenerated_0_5_05_095.npy", allow_pickle=True).item()
 
-model_xl = np.load("YOLOv8_data_generated_backbone_xl_0_5_05_095.npy", allow_pickle=True).item()
+# model_xl = np.load("YOLOv8_data_generated_backbone_xl_0_5_05_095.npy", allow_pickle=True).item()
+
+# dict_of_models = {
+#     "model_xs": model_xs,
+#     "model_s": model_s,
+#     "model_m": model_m,
+#     "model_l": model_l,
+#     "model_xl": model_xl,
+# }
+
+model_xs_2x = np.load("YOLOv8_data_generated_backbone_xs_reduced_2x_0_5_05_095.npy", allow_pickle=True).item()
+
+model_xs_4x = np.load("YOLOv8_data_generated_backbone_xs_reduced_4x_0_5_05_095.npy", allow_pickle=True).item()
+
+model_xs_8x = np.load("YOLOv8_data_generated_backbone_xs_reduced_8x_0_5_05_095.npy", allow_pickle=True).item()
+
+model_xs_16x = np.load("YOLOv8_data_generated_backbone_xs_reduced_16x_0_5_05_095.npy", allow_pickle=True).item()
 
 dict_of_models = {
     "model_xs": model_xs,
-    "model_s": model_s,
-    "model_m": model_m,
-    "model_l": model_l,
-    "model_xl": model_xl,
+    "model_xs_reduced_2x": model_xs_2x,
+    "model_xs_reduced_4x": model_xs_4x,
+    "model_xs_reduced_8x": model_xs_8x,
+    "model_xs_reduced_16x": model_xs_16x,
 }
 
 dict_results = {}
 
 array_epochs = [2, 5, 10, 20, 30, 50, 100, 300, 500]
+array_iou_threshold = [0.5, 0.55, 0.6, 0.65, 0.7, 0.75, 0.8, 0.85, 0.9, 0.95]
 colors_model = ['#1f77b4', '#ff7f0e', '#2ca02c', '#d62728', '#9467bd', '#8c564b', '#e377c2', '#7f7f7f', '#bcbd22', '#17becf']
 
 for model in dict_of_models.keys():
@@ -246,8 +262,11 @@ for model in dict_of_models.keys():
     dict_results[model]["ap_50_95_array"] = ap_50_95_array
     
 
-plot_average_precision_x_recall_curve(dict_of_models, "model_xs", 100, 0.5)
+# plot_average_precision_x_recall_curve(dict_of_models, "model_xs", 100, 0.5)
 # plot_average_precision_x_recall_curve_of_all_models_for_a_given_epoch_and_threshold(dict_of_models, 100, 0.5, colors_model)
+for epoch in array_epochs:
+    for t in [array_iou_threshold[0], array_iou_threshold[-1]]:
+        plot_average_precision_x_recall_curve_of_all_models_for_a_given_epoch_and_threshold(dict_of_models, epoch, t, colors_model)
 
 
 ########################################################################################################################
@@ -260,10 +279,10 @@ for model in dict_of_models.keys():
 
     print("------------------------------------- Displaying model : " + model + " -------------------------------------")
 
-    dict_results[model]["precision_computed"] = [[dict_results[model]["true_positifs_array"][i][j]/(dict_results[model]["true_positifs_array"][i][j] + dict_results[model]["false_positifs_array"][i][j]) for j in range(len(dict_results[model]["true_positifs_array"][i]))]
+    dict_results[model]["precision_computed"] = [[dict_results[model]["true_positifs_array"][i][j]/max(((dict_results[model]["true_positifs_array"][i][j] + dict_results[model]["false_positifs_array"][i][j]), 1)) for j in range(len(dict_results[model]["true_positifs_array"][i]))]
                         for i in range(len(dict_results[model]["true_positifs_array"]))]
 
-    dict_results[model]["recall_computed"] = [[dict_results[model]["true_positifs_array"][i][j]/(dict_results[model]["true_positifs_array"][i][j] + dict_results[model]["false_negatives_array"][i][j]) for j in range(len(dict_results[model]["false_negatives_array"][i]))]
+    dict_results[model]["recall_computed"] = [[dict_results[model]["true_positifs_array"][i][j]/max(((dict_results[model]["true_positifs_array"][i][j] + dict_results[model]["false_negatives_array"][i][j]), 1)) for j in range(len(dict_results[model]["false_negatives_array"][i]))]
                         for i in range(len(dict_results[model]["true_positifs_array"]))]
 
     stats_dict[model] = {
@@ -315,7 +334,7 @@ for i, model in enumerate(stats_dict.keys()):
     p_array.append((p2[0], p1[0]))
     model_array.append(model)
 
-a.legend(p_array, model_array, loc='center right')
+a.legend(p_array, model_array, loc='lower right')
 
 plt.show()
 
@@ -339,7 +358,7 @@ for i, model in enumerate(stats_dict.keys()):
     p_array.append((p2[0], p1[0]))
     model_array.append(model)
 
-a.legend(p_array, model_array, loc='center right')
+a.legend(p_array, model_array, loc='lower right')
 
 plt.show()
 
@@ -363,7 +382,7 @@ for i, model in enumerate(stats_dict.keys()):
     p_array.append((p2[0], p1[0]))
     model_array.append(model)
 
-a.legend(p_array, model_array, loc='center right')
+a.legend(p_array, model_array, loc='lower right')
 
 plt.show()
 
@@ -387,7 +406,7 @@ for i, model in enumerate(stats_dict.keys()):
     p_array.append((p2[0], p1[0]))
     model_array.append(model)
 
-a.legend(p_array, model_array, loc='center right')
+a.legend(p_array, model_array, loc='lower right')
 
 plt.show()
 
@@ -411,6 +430,6 @@ for i, model in enumerate(stats_dict.keys()):
     p_array.append((p2[0], p1[0]))
     model_array.append(model)
 
-a.legend(p_array, model_array, loc='center right')
+a.legend(p_array, model_array, loc='lower right')
 
 plt.show()

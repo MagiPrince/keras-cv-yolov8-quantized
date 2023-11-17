@@ -85,7 +85,7 @@ for iteration in range(0, 5):
     dict_results[str(iteration)]['loss'] = loss_history
     dict_results[str(iteration)]['val_loss'] = val_loss_history
 
-np.save('YOLOv8_data_generated_backbone_xs_reduced_16x_0_5_05_095.npy', dict_results)
+np.save('YOLOv8_data_generated_backbone_xs_reduced_32x_0_5_05_095.npy', dict_results)
 
 # acc = model.history.history['val_accuracy']
 # print(acc) # [0.9573, 0.9696, 0.9754, 0.9762, 0.9784]
