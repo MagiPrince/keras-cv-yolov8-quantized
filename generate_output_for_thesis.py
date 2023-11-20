@@ -36,8 +36,10 @@ def compute_average_precision_50_95(data_generated, iteration, epoch, compute_on
     return np.mean(ap)
 
 
-data_generated = np.load("YOLOv8_data_generated_backbone_xs_0_5_05_095.npy", allow_pickle=True).item()
-data_generated.update(np.load("YOLOv8_data_generated_backbone_xs_5_10_05_095.npy", allow_pickle=True).item())
+# data_generated = np.load("YOLOv8_data_generated_backbone_xs_0_5_05_095.npy", allow_pickle=True).item()
+# data_generated.update(np.load("YOLOv8_data_generated_backbone_xs_5_10_05_095.npy", allow_pickle=True).item())
+
+data_generated = np.load("YOLOv8_data_generated_backbone_xs_reduced_16x_0_5_05_095.npy", allow_pickle=True).item()
 
 array_epochs = [2, 5, 10, 20, 30, 50, 100, 300, 500]
 
@@ -81,10 +83,10 @@ for iteration in data_generated:
 # print("F1 score max : " + str(np.array(f1_scores_array).max(axis=0)) + "\n / min : " + str(np.array(f1_scores_array).min(axis=0))
 #       + "\n / mean : " + str(np.array(f1_scores_array).mean(axis=0)) + "\n / std : " + str(np.array(f1_scores_array).std(axis=0)))
 
-precision_computed = [[true_positifs_array[i][j]/(true_positifs_array[i][j] + false_positifs_array[i][j]) for j in range(len(true_positifs_array[i]))]
+precision_computed = [[true_positifs_array[i][j]/max(((true_positifs_array[i][j] + false_positifs_array[i][j]), 1)) for j in range(len(true_positifs_array[i]))]
                       for i in range(len(true_positifs_array))]
 
-recall_computed = [[true_positifs_array[i][j]/(true_positifs_array[i][j] + false_negatives_array[i][j]) for j in range(len(false_negatives_array[i]))]
+recall_computed = [[true_positifs_array[i][j]/max(((true_positifs_array[i][j] + false_negatives_array[i][j]), 1)) for j in range(len(false_negatives_array[i]))]
                       for i in range(len(true_positifs_array))]
 
 stats_dict = {
@@ -123,16 +125,16 @@ print(df)
 f1_scores_mean = np.array(f1_scores_array).mean(axis=0)
 f1_scores_std = np.array(f1_scores_array).std(axis=0)
 
-plt.plot(array_epochs, f1_scores_mean, marker="o", markersize=3)
-plt.fill_between(array_epochs, f1_scores_mean-f1_scores_std, f1_scores_mean+f1_scores_std, alpha=0.3, color='C0')
-# plt.figure()
-# plt.errorbar(array_epochs, f1_scores_mean, yerr=f1_scores_std, marker='o', markersize=3, capsize=3)
+# plt.plot(array_epochs, f1_scores_mean, marker="o", markersize=3)
+# plt.fill_between(array_epochs, f1_scores_mean-f1_scores_std, f1_scores_mean+f1_scores_std, alpha=0.3, color='C0')
+# # plt.figure()
+# # plt.errorbar(array_epochs, f1_scores_mean, yerr=f1_scores_std, marker='o', markersize=3, capsize=3)
 
-plt.xlabel("Epochs")
-plt.ylabel("F1 score")
-plt.title("F1 score mean and std over the epochs")
+# plt.xlabel("Epochs")
+# plt.ylabel("F1 score")
+# plt.title("F1 score mean and std over the epochs")
 
-plt.show()
+# plt.show()
 
 ########################################################################################################################
 # Computing and plotting losses mean and std for training and validation over epochs
@@ -144,23 +146,23 @@ losses_std = np.array(lossess_array).std(axis=0)
 val_losses_mean = np.array(val_lossess_array).mean(axis=0)
 val_losses_std = np.array(val_lossess_array).std(axis=0)
 
-# Generating plot
+# # Generating plot
 
-f, a = plt.subplots()
+# f, a = plt.subplots()
 
-a.fill_between(range(len(losses_mean)), losses_mean-losses_std, losses_mean+losses_std, alpha=0.3, color='C0')
-p1 = a.plot(range(len(losses_mean)), losses_mean, color='C0')
-p2 = a.fill(np.NaN, np.NaN, 'C0', alpha=0.3)
-plt.xlabel("Epochs")
-plt.ylabel("Loss")
-plt.title("Loss mean and std over the epochs")
+# a.fill_between(range(len(losses_mean)), losses_mean-losses_std, losses_mean+losses_std, alpha=0.3, color='C0')
+# p1 = a.plot(range(len(losses_mean)), losses_mean, color='C0')
+# p2 = a.fill(np.NaN, np.NaN, 'C0', alpha=0.3)
+# plt.xlabel("Epochs")
+# plt.ylabel("Loss")
+# plt.title("Loss mean and std over the epochs")
 
-a.fill_between(range(len(val_losses_mean)), val_losses_mean-val_losses_std, val_losses_mean+val_losses_std, alpha=0.3, color='#ff7f0e')
-p3 = a.plot(range(len(val_losses_mean)), val_losses_mean, color='#ff7f0e')
-p4 = a.fill(np.NaN, np.NaN, '#ff7f0e', alpha=0.3)
-a.legend([(p2[0], p1[0]), (p3[0], p4[0]), ], ['Training loss', "Validation loss"])
+# a.fill_between(range(len(val_losses_mean)), val_losses_mean-val_losses_std, val_losses_mean+val_losses_std, alpha=0.3, color='#ff7f0e')
+# p3 = a.plot(range(len(val_losses_mean)), val_losses_mean, color='#ff7f0e')
+# p4 = a.fill(np.NaN, np.NaN, '#ff7f0e', alpha=0.3)
+# a.legend([(p2[0], p1[0]), (p3[0], p4[0]), ], ['Training loss', "Validation loss"])
 
-plt.show()
+# plt.show()
 
 ########################################################################################################################
 # Computing and plotting f1 score and losses mean and std for training and validation over epochs

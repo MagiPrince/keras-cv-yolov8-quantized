@@ -1,9 +1,10 @@
 import numpy as np
 import matplotlib.pyplot as plt
+import random
 
 data = np.load("YOLOv8_data_generated_backbone_xs_0_5_05_095.npy", allow_pickle=True).item()
 
-prediction = data["0"]["100"]["prediction"]["0.95"]
+prediction = data["0"]["100"]["prediction"]["0.5"]
 
 for key in prediction:
     print(key)
@@ -29,6 +30,28 @@ for element in prediction:
     recall_array.append(recall)
 
 print(np.trapz(precision_array, recall_array))
+
+# nb_gt = data["0"]["100"]["values_computed"][-1]
+# acc_TP = 0
+# acc_FP = 0
+# cnt_detection_reviewed = 0
+# precision_array = []
+# recall_array = []
+# prediction = sorted(prediction, key=lambda x: x[-1], reverse=True)
+# for element in prediction:
+#     cnt_detection_reviewed += 1
+#     if element[-1] == True:
+#         acc_TP += 1
+#     else:
+#         acc_FP += 1
+
+#     precision = acc_TP/cnt_detection_reviewed
+#     recall = acc_TP/nb_gt
+
+#     precision_array.append(precision)
+#     recall_array.append(recall)
+
+# print("shuffle : " + str(np.trapz(precision_array, recall_array)))
 
 p = []
 r = []
