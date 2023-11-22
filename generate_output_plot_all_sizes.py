@@ -264,9 +264,9 @@ for model in dict_of_models.keys():
 
 # plot_average_precision_x_recall_curve(dict_of_models, "model_xs", 100, 0.5)
 # plot_average_precision_x_recall_curve_of_all_models_for_a_given_epoch_and_threshold(dict_of_models, 100, 0.5, colors_model)
-for epoch in array_epochs:
-    for t in [array_iou_threshold[0], array_iou_threshold[-1]]:
-        plot_average_precision_x_recall_curve_of_all_models_for_a_given_epoch_and_threshold(dict_of_models, epoch, t, colors_model)
+# for epoch in array_epochs:
+#     for t in [array_iou_threshold[0], array_iou_threshold[-1]]:
+#         plot_average_precision_x_recall_curve_of_all_models_for_a_given_epoch_and_threshold(dict_of_models, epoch, t, colors_model)
 
 
 ########################################################################################################################
@@ -287,30 +287,31 @@ for model in dict_of_models.keys():
 
     stats_dict[model] = {
         "epoch": np.array(array_epochs),
+        "F1 score mean": np.array(dict_results[model]["f1_scores_array"]).mean(axis=0),
         "F1 score max": np.array(dict_results[model]["f1_scores_array"]).max(axis=0),
         "F1 score min": np.array(dict_results[model]["f1_scores_array"]).min(axis=0),
-        "F1 score mean": np.array(dict_results[model]["f1_scores_array"]).mean(axis=0),
         "F1 score std": np.array(dict_results[model]["f1_scores_array"]).std(axis=0),
+        "Precision mean": np.array(dict_results[model]["precision_computed"]).mean(axis=0),
         "Precision max": np.array(dict_results[model]["precision_computed"]).max(axis=0),
         "Precision min": np.array(dict_results[model]["precision_computed"]).min(axis=0),
-        "Precision mean": np.array(dict_results[model]["precision_computed"]).mean(axis=0),
         "Precision std": np.array(dict_results[model]["precision_computed"]).std(axis=0),
+        "Recall mean": np.array(dict_results[model]["recall_computed"]).mean(axis=0),
         "Recall max": np.array(dict_results[model]["recall_computed"]).max(axis=0),
         "Recall min": np.array(dict_results[model]["recall_computed"]).min(axis=0),
-        "Recall mean": np.array(dict_results[model]["recall_computed"]).mean(axis=0),
         "Recall std": np.array(dict_results[model]["recall_computed"]).std(axis=0),
+        "AP[.5] mean": np.array(dict_results[model]["ap_50_array"]).mean(axis=0),
         "AP[.5] max": np.array(dict_results[model]["ap_50_array"]).max(axis=0),
         "AP[.5] min": np.array(dict_results[model]["ap_50_array"]).min(axis=0),
-        "AP[.5] mean": np.array(dict_results[model]["ap_50_array"]).mean(axis=0),
         "AP[.5] std": np.array(dict_results[model]["ap_50_array"]).std(axis=0),
+        "AP[.5,0.05,0.95] mean": np.array(dict_results[model]["ap_50_95_array"]).mean(axis=0),
         "AP[.5,0.05,0.95] max": np.array(dict_results[model]["ap_50_95_array"]).max(axis=0),
         "AP[.5,0.05,0.95] min": np.array(dict_results[model]["ap_50_95_array"]).min(axis=0),
-        "AP[.5,0.05,0.95] mean": np.array(dict_results[model]["ap_50_95_array"]).mean(axis=0),
         "AP[.5,0.05,0.95] std": np.array(dict_results[model]["ap_50_95_array"]).std(axis=0),
         }
 
-    # pd.set_option('display.max_columns', None)
-    # pd.set_option('display.max_rows', None)
+    pd.set_option('display.max_columns', None)
+    pd.set_option('display.max_rows', None)
+    pd.set_option('display.precision', 4)
     df = pd.DataFrame(data=stats_dict[model])
     print(df)
 
