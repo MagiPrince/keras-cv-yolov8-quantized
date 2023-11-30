@@ -312,8 +312,30 @@ for model in dict_of_models.keys():
     pd.set_option('display.max_columns', None)
     pd.set_option('display.max_rows', None)
     pd.set_option('display.precision', 4)
+    pd.options.display.float_format = '{:.4f}'.format
     df = pd.DataFrame(data=stats_dict[model])
-    print(df)
+    # print(df)
+
+    print("------------------- Precision -------------------")
+    for e in range(len(df["epoch"])):
+        print(str(df["epoch"][e]) + " & %.4f & %.4f & %.4f & %.4f\\\\" % (df["Precision mean"][e], df["Precision max"][e], df["Precision min"][e], df["Precision std"][e]))
+        
+    
+    print("------------------- Recall -------------------")
+    for e in range(len(df["epoch"])):
+        print(str(df["epoch"][e]) + " & %.4f & %.4f & %.4f & %.4f\\\\" % (df["Recall mean"][e], df["Recall max"][e], df["Recall min"][e], df["Recall std"][e]))
+
+    print("------------------- F1 score -------------------")
+    for e in range(len(df["epoch"])):
+        print(str(df["epoch"][e]) + " & %.4f & %.4f & %.4f & %.4f\\\\" % (df["F1 score mean"][e], df["F1 score max"][e], df["F1 score min"][e], df["F1 score std"][e]))
+
+    print("------------------- AP[.5] -------------------")
+    for e in range(len(df["epoch"])):
+        print(str(df["epoch"][e]) + " & %.4f & %.4f & %.4f & %.4f\\\\" % (df["AP[.5] mean"][e], df["AP[.5] max"][e], df["AP[.5] min"][e], df["AP[.5] std"][e]))
+
+    print("------------------- AP[.5,0.05,0.95] -------------------")
+    for e in range(len(df["epoch"])):
+        print(str(df["epoch"][e]) + " & %.4f & %.4f & %.4f & %.4f\\\\" % (df["AP[.5,0.05,0.95] mean"][e], df["AP[.5,0.05,0.95] max"][e], df["AP[.5,0.05,0.95] min"][e], df["AP[.5,0.05,0.95] std"][e]))
 
 ########################################################################################################################
 # Computing and plotting Precision and std over epochs for each model size
