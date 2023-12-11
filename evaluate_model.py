@@ -81,7 +81,7 @@ def evaluate_model_f(images_test, labels_test, name_weight, name_backbone):
         true_detection = 0
         boxes_gt = []
         for j in range(len(labels_test["boxes"][i])):
-            if labels_test["classes"][i][j] == 1 and labels_test["boxes"][i][j][0] < 48 and labels_test["boxes"][i][j][0] > 5 and labels_test["boxes"][i][j][1] < 59 and labels_test["boxes"][i][j][1] > 5:
+            if labels_test["classes"][i][j] == 1 and labels_test["boxes"][i][j][0] < 44 and labels_test["boxes"][i][j][0] > 5 and labels_test["boxes"][i][j][1] < 59 and labels_test["boxes"][i][j][1] > 5:
                 boxes_gt.append(copy.deepcopy(labels_test["boxes"][i][j].tolist()))
 
         nb_gt += len(boxes_gt)
@@ -90,7 +90,7 @@ def evaluate_model_f(images_test, labels_test, name_weight, name_backbone):
             boxes_gt_for_pxrc[str(iou_threshold)] = copy.deepcopy(boxes_gt)
 
         for j in range(len(results["boxes"][i])):
-            if results["classes"][i][j] == 1 and results["boxes"][i][j][0] < 48 and results["boxes"][i][j][0] > 5 and results["boxes"][i][j][1] > 5 and results["boxes"][i][j][1] < 59:
+            if results["classes"][i][j] == 1 and results["boxes"][i][j][0] < 44 and results["boxes"][i][j][0] > 5 and results["boxes"][i][j][1] > 5 and results["boxes"][i][j][1] < 59:
                 index_iou = -1
                 best_iou = -1
 
@@ -143,6 +143,9 @@ def evaluate_model_f(images_test, labels_test, name_weight, name_backbone):
     print("False negative : " + str(false_negative))
 
     print("F1 score : " + str((2*true_positif)/(2*true_positif+false_positif+false_negative)))
+
+    print("GT : " + str(nb_gt))
+    print(len(prediction_dict["0.5"]))
 
     return true_positif, false_positif, false_negative, ((2*true_positif)/(2*true_positif+false_positif+false_negative)), prediction_dict, nb_gt
 

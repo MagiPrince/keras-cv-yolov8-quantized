@@ -68,7 +68,7 @@ def plot_average_precision_x_recall_curve_of_all_models_for_a_given_epoch_and_th
     plt.legend(models_array)
     plt.xlabel("Recall")
     plt.ylabel("Precision")
-    plt.title("Average Precision x Recall curve of all model sizes with IOU of : " + str(threshold) + " for epoch : " + str(epoch))
+    plt.title("Average Precision x Recall curve of all model sizes \n with IOU of : " + str(threshold) + " for epoch : " + str(epoch))
     plt.show()
 
 
@@ -262,8 +262,8 @@ for model in dict_of_models.keys():
     dict_results[model]["ap_50_95_array"] = ap_50_95_array
     
 
-# plot_average_precision_x_recall_curve(dict_of_models, "model_xs", 100, 0.5)
-# plot_average_precision_x_recall_curve_of_all_models_for_a_given_epoch_and_threshold(dict_of_models, 100, 0.5, colors_model)
+# plot_average_precision_x_recall_curve(dict_of_models, "model_xs", 300, 0.5)
+plot_average_precision_x_recall_curve_of_all_models_for_a_given_epoch_and_threshold(dict_of_models, 500, 0.5, colors_model)
 # for epoch in array_epochs:
 #     for t in [array_iou_threshold[0], array_iou_threshold[-1]]:
 #         plot_average_precision_x_recall_curve_of_all_models_for_a_given_epoch_and_threshold(dict_of_models, epoch, t, colors_model)

@@ -39,7 +39,7 @@ def compute_average_precision_50_95(data_generated, iteration, epoch, compute_on
 # data_generated = np.load("YOLOv8_data_generated_backbone_xs_0_5_05_095.npy", allow_pickle=True).item()
 # data_generated.update(np.load("YOLOv8_data_generated_backbone_xs_5_10_05_095.npy", allow_pickle=True).item())
 
-data_generated = np.load("YOLOv8_data_generated_backbone_xs_reduced_16x_0_5_05_095.npy", allow_pickle=True).item()
+data_generated = np.load("YOLOv8_data_generated_backbone_xl_0_5_05_095.npy", allow_pickle=True).item()
 
 array_epochs = [2, 5, 10, 20, 30, 50, 100, 300, 500]
 
@@ -177,7 +177,7 @@ p1 = a.plot(range(len(losses_mean)), losses_mean, color='C0')
 p2 = a.fill(np.NaN, np.NaN, 'C0', alpha=0.3)
 a.set_xlabel("Epochs")
 a.set_ylabel("Loss")
-plt.title("F1 score / Loss mean and std over the epochs")
+plt.title("F1 score, Loss mean and std over the epochs")
 
 # Validation loss
 
@@ -194,5 +194,5 @@ p5 = b.plot(array_epochs, f1_scores_mean, marker="o", markersize=3, color='#2ca0
 p6 = b.fill(np.NaN, np.NaN, '#2ca02c', alpha=0.3)
 b.legend([(p5[0], p6[0]), (p2[0], p1[0]), (p3[0], p4[0]), ], ['F1 score', 'Training loss', "Validation loss"], loc='center right')
 b.set_ylabel("F1 score", color='#2ca02c')
-
+a.grid(axis='both', linestyle='--')
 plt.show()

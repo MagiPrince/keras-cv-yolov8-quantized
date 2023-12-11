@@ -6,6 +6,7 @@ import os
 from keras.callbacks import EarlyStopping, ModelCheckpoint, ReduceLROnPlateau
 
 NAME_BACKBONE = "yolo_v8_xs_backbone"
+NAME_WEIGHT = "yolo_v8_xs_backbone_tmp"
 TRAIN = True
 
 images = np.load("matrices_training.npy")
@@ -63,9 +64,9 @@ else:
     # mcp_save_accuracy_max = ModelCheckpoint('accuracy_max.h5', save_best_only=True, save_weights_only=True, monitor='accuracy', mode='max')
     reduce_lr_loss = ReduceLROnPlateau(monitor='loss', factor=0.5, patience=500, verbose=1, mode='min')
 
-    model.fit(images, labels, validation_data=(images_validation, labels_validation), epochs=30, batch_size=64, callbacks=[mcp_save_val_loss_min, mcp_save_loss_min])
+    model.fit(images, labels, validation_data=(images_validation, labels_validation), epochs=1, batch_size=64, callbacks=[mcp_save_val_loss_min, mcp_save_loss_min])
 
-    model.save_weights(NAME_BACKBONE+".h5", overwrite="True", save_format="h5", options=None)
+    model.save_weights(NAME_WEIGHT+".h5", overwrite="True", save_format="h5", options=None)
 
     # acc = model.history.history['loss']
     # print(acc) # [0.9573, 0.9696, 0.9754, 0.9762, 0.9784]
