@@ -1,3 +1,10 @@
+This fork is linked to my master thesis about "__Machine learning based fast jet finding for FPGA real-time processing at the LHC ATLAS experiment__".
+
+It aims to try the YOLOv8 model on the "jet finding" task and evaluate if it can be accelarated using "hls4ml" for a FPGA implementation (at the time of the evaluation it was not possible due to the imbriqued models).
+
+There is also different scripts to manipulate the files containing the data and generate a file with corresponding images (representation of the energy and the pt of the calorimeter cells of a granularity of 0.1x0.1) and labels.
+
+
 # KerasCV
 
 [![](https://github.com/keras-team/keras-cv/workflows/Tests/badge.svg?branch=master)](https://github.com/keras-team/keras-cv/actions?query=workflow%3ATests+branch%3Amaster)
